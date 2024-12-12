@@ -1,12 +1,32 @@
 "use client";
 import LoginForm from "@/components/auth/LoginForm";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 const Login = () => {
+  // State to store window dimensions
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+  // Effect to set dimensions after mount
+  useEffect(() => {
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+  }, []);
+
+  // Generate random positions for particles
+  const generateParticles = (count: number) => {
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      initialX: dimensions.width ? Math.random() * dimensions.width : 0,
+      initialY: dimensions.height ? Math.random() * dimensions.height : 0,
+      xOffset: Math.random() * 20 - 10
+    }));
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-black overflow-hidden">
       {/* Background Elements */}
@@ -93,7 +113,7 @@ const Login = () => {
 
             {/* Sign Up Options */}
             <div className="mt-8 text-center">
-              <p className="text-white/60 mb-4"> Don &apos; t have an account?</p>
+              <p className="text-white/60 mb-4">Don&apos;t have an account?</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/auth/signup"
@@ -101,12 +121,6 @@ const Login = () => {
                 >
                   Sign Up
                 </Link>
-                {/* <Link
-                  href="/auth/signup/designer"
-                  className="inline-flex items-center justify-center px-6 py-2 rounded-full bg-accent/10 hover:bg-accent/20 text-accent transition-colors duration-300"
-                >
-                  Join as Designer
-                </Link> */}
               </div>
             </div>
           </motion.div>
@@ -124,29 +138,31 @@ const Login = () => {
       </div>
 
       {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-accent/20 rounded-full"
-            initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
+      {dimensions.width > 0 && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {generateParticles(20).map((particle) => (
+            <motion.div
+              key={particle.id}
+              className="absolute w-2 h-2 bg-accent/20 rounded-full"
+              initial={{
+                x: particle.initialX,
+                y: particle.initialY,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                x: [0, particle.xOffset, 0],
+                scale: [1, 1.2, 1],
+                opacity: [0.2, 0.5, 0.2],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
