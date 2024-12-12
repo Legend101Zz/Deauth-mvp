@@ -1,8 +1,9 @@
+//@ts-nocheck
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb.ts";
 import { Address } from "@/models/Address";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 export async function PUT(
   req: Request,
