@@ -93,7 +93,7 @@ const Login = () => {
 
             {/* Sign Up Options */}
             <div className="mt-8 text-center">
-              <p className="text-white/60 mb-4">Don't have an account?</p>
+              <p className="text-white/60 mb-4"> Don &apos; t have an account?</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/auth/signup"

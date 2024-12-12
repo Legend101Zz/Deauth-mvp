@@ -21,7 +21,7 @@ const Loading = () => {
 						<div className="w-32 h-32 relative animate-bounce transition-transform duration-1000">
 							<Image
 								src="/deauthCircleIcon2.png"
-								alt="Deauth Logo"Z
+								alt="Deauth Logo"
 								width={200}
 								height={200}
 								className="object-contain drop-shadow-[0_0_15px_rgba(255,125,5,0.5)]"
