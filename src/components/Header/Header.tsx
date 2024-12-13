@@ -114,7 +114,7 @@ const Header = () => {
 				} w-full h-[50px] md:h-[80px] flex justify-between z-20 fixed bg-black top-0 transition-all duration-500 px-5`}
 		>
 			{/* Logo */}
-			<div className="flex gap-2 items-center ml-5 h-full">
+			<div className="flex gap-2 items-center  ml-5 h-full">
 				<Link href="/">
 					<div className="flex h-full max-h-full gap-2 overflow-hidden items-center">
 						<Image

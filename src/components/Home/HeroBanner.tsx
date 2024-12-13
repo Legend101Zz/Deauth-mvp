@@ -15,7 +15,7 @@ const HeroBanner = () => {
 		{ icon: Wind, title: "Perfect Fit" },
 	];
 	return (
-		<section className="min-h-screen flex items-center">
+		<section className="min-h-screen flex items-center mt-[5em] md:mt-0 bg-transparent">
 			<div className="container mx-auto px-4">
 				<div className="grid md:grid-cols-2 gap-12 items-center">
 					{/* Left Content */}

@@ -3,6 +3,8 @@ import React from "react";
 import { FaFacebookF, FaTwitter, FaYoutube, FaInstagram } from "react-icons/fa";
 import Wrapper from "@/components/Wrapper";
 import { FooterStripOrange, FooterStripGray } from "./FooterStrips";
+import Image from "next/image";
+import ImageSlider from "../ui/ImageSlider";
 
 const Footer = () => {
 	return (
@@ -16,7 +18,9 @@ const Footer = () => {
 						<div className="font-heading1 text-5xl">Deauth</div>
 						<div></div>
 					</div>
-					<div className="size-64 bg-red-300 rounded-lg"></div>
+						<div className="">
+						<ImageSlider/>
+						</div>
 					<div className="flex gap-4 justify-center md:justify-start flex-row">
 						<a
 							href="https://facebook.com"
@@ -86,7 +90,7 @@ const Footer = () => {
 						{/* MENU START */}
 						<div className="flex flex-col gap-3 text-lg font-heading1">
 							<div className="font-oswald font-medium uppercase ">
-								About Eye Tee
+								About Deauth
 							</div>
 							<div className=" text-white/[0.5] hover:text-white cursor-pointer">
 								News
@@ -114,7 +118,7 @@ const Footer = () => {
 			<Wrapper className="flex justify-between mt-10 flex-col md:flex-row gap-[10px] md:gap-0">
 				{/* LEFT START */}
 				<div className="text-[12px] text-white/[0.5] hover:text-white cursor-pointer text-center md:text-left">
-					© 2023 Eye Tee, Inc. All Rights Reserved
+					© 2023 Deauth, Inc. All Rights Reserved
 				</div>
 				{/* LEFT END */}
 
