@@ -13,6 +13,7 @@ import Features from "@/components/Home/Feautures/Features";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import ProductSelectionSection from "@/components/Home/ProductSelectionSection/ProductSelectionSection";
 
+
 export default function Home() {
 	const containerRef = useRef(null);
 	const [isHovered, setIsHovered] = useState(false);
@@ -28,6 +29,8 @@ export default function Home() {
 		<main ref={containerRef} className="relative min-h-screen">
 			{/* Hero Banner */}
 			<AnimatedBackground />
+			{/* <Beam/> */}
+			{/* <HeroHighlight/> */}
 
 			{/* Main Content */}
 			<div className="relative z-10">
