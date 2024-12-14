@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import HeroBanner from "@/components/Home/HeroBanner";
 import Features from "@/components/Home/Feautures/Features";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import ProductSelectionSection from "@/components/Home/ProductSelectionSection/ProductSelectionSection";
+import Loading from "./loading";
 
 
 export default function Home() {
@@ -19,11 +20,24 @@ export default function Home() {
 	const [isHovered, setIsHovered] = useState(false);
 	const [activeFeature, setActiveFeature] = useState(0);
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const { scrollYProgress } = useScroll({
 		target: containerRef,
 		offset: ["start start", "end end"],
 	});
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setIsLoading(false);
+		}, 10000); // 3 seconds
+
+		return () => clearTimeout(timer);
+	}, []);
+
+	if (isLoading) {
+		return <Loading />;
+	}
 
 	return (
 		<main ref={containerRef} className="relative min-h-screen">
