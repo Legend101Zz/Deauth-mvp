@@ -26,7 +26,13 @@ const config = {
     },
     extend: {
       scrollBehavior: ["smooth"],
-
+      backgroundImage: {
+        "grid-pattern":
+          "linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px)",
+      },
+      backgroundSize: {
+        "grid-pattern": "20px 20px",
+      },
       colors: {
         //Daisy Ui colors
         "primary-content": "#ffffff",

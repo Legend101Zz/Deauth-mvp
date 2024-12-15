@@ -1,18 +1,24 @@
 //@ts-nocheck
 "use client";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { PlusCircle, Package, MapPin, Edit, Trash, LogOut } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { useAuth } from "@/hooks/useAuth";
 import { useSession } from "next-auth/react";
-import { signOut } from "next-auth/react"
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { PlusCircle, MapPin, Edit, Trash, LogOut } from "lucide-react";
 import axios from "axios";
+
+// Profile components
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { ProfileNavigation } from "@/components/profile/ProfileNavigation";
+import { BackgroundAnimation } from "@/components/profile/BackgroundAnimation";
+import { OrdersSection } from "@/components/profile/OrdersSection";
+
 
 // Types
 interface IAddress {
@@ -228,340 +234,255 @@ export default function UserProfile() {
     };
 
     return (
-        <>
-            <ProtectedRoute>
-                <div className="min-h-screen bg-background pt-24 px-4 md:px-8">
-                    <div className="max-w-7xl mx-auto">
-                        {/* Profile Header */}
-                        <div className="bg-secondaryBackground rounded-xl p-6 md:p-8 mb-8">
-                            <div className="flex flex-col md:flex-row items-center gap-6">
-                                <div className="relative w-24 h-24 rounded-full overflow-hidden">
-                                    <Image
-                                        src={session?.user?.image || "/profile.png"}
-                                        alt="Profile"
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <div className="text-center md:text-left">
-                                    <h1 className="text-2xl md:text-3xl font-heading1 text-white">
-                                        {session?.user?.name || "User"}
-                                    </h1>
-                                    <p className="text-white/70">
-                                        {session?.user?.email || "user@example.com"}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+        <ProtectedRoute>
+            <div className="min-h-screen bg-background">
+                {/* Background Animation */}
+                <BackgroundAnimation />
 
-                        {/* Navigation Tabs */}
-                        <div className="flex border-b border-white/10 mb-8">
-                            <button
-                                onClick={() => setActiveTab("orders")}
-                                className={`py-4 px-6 font-heading1 text-lg ${activeTab === "orders"
-                                    ? "text-accent border-b-2 border-accent"
-                                    : "text-white/70"
-                                    }`}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <Package size={20} />
-                                    Orders
-                                </span>
-                            </button>
-                            <button
-                                onClick={() => setActiveTab("addresses")}
-                                className={`py-4 px-6 font-heading1 text-lg ${activeTab === "addresses"
-                                    ? "text-accent border-b-2 border-accent"
-                                    : "text-white/70"
-                                    }`}
-                            >
-                                <span className="flex items-center gap-2">
-                                    <MapPin size={20} />
-                                    Addresses
-                                </span>
-                            </button>
-                        </div>
+                <div className="pt-24 px-4 md:px-8">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Enhanced Profile Header */}
+                        <ProfileHeader user={session?.user} />
+
+                        {/* Enhanced Navigation */}
+                        <ProfileNavigation
+                            activeTab={activeTab}
+                            setActiveTab={setActiveTab}
+                        />
 
                         {/* Content Area */}
-                        {activeTab === "orders" && (
-                            <div className="space-y-6">
-                                {orders.map((order) => (
-                                    <div
-                                        key={order.id}
-                                        className="bg-secondaryBackground rounded-xl p-6"
+                        <div className="space-y-6">
+                            {/* Orders Section */}
+                            {activeTab === "orders" && (
+                                <OrdersSection orders={orders} loading={loading} />
+                            )}
+
+                            {/* Addresses Section */}
+                            {activeTab === "addresses" && (
+                                <div className="space-y-6">
+                                    {/* Add New Address Button */}
+                                    <Button
+                                        onClick={() => setIsAddressModalOpen(true)}
+                                        className="w-full bg-accent hover:bg-accent/90 rounded-full font-heading1"
                                     >
-                                        <div className="flex justify-between items-center mb-4">
-                                            <div>
-                                                <h3 className="text-lg font-heading1 text-white">
-                                                    Order #{order.id}
-                                                </h3>
-                                                <p className="text-white/70">Placed on {order.date}</p>
+                                        <PlusCircle className="mr-2" />
+                                        Add New Address
+                                    </Button>
+
+                                    {/* Addresses List Section */}
+                                    {addresses.length === 0 && !loading ? (
+                                        <div className="bg-secondaryBackground rounded-xl p-8 text-center">
+                                            <div className="mb-4">
+                                                <MapPin className="w-12 h-12 text-accent mx-auto mb-2" />
+                                                <h3 className="text-xl font-heading1 text-white">No addresses yet</h3>
+                                                <p className="text-white/70 mt-2">
+                                                    Add your first delivery address to get started
+                                                </p>
                                             </div>
-                                            <span className={`px-4 py-2 rounded-full text-sm font-heading1 
-                    ${order.status === "Delivered"
-                                                    ? "bg-green-500/10 text-green-500"
-                                                    : "bg-yellow-500/10 text-yellow-500"}`}
+                                            <Button
+                                                onClick={() => setIsAddressModalOpen(true)}
+                                                className="bg-accent hover:bg-accent/90 rounded-full"
                                             >
-                                                {order.status}
-                                            </span>
+                                                Add Your First Address
+                                            </Button>
                                         </div>
-                                        {order.items.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex justify-between items-center py-4 border-t border-white/10"
-                                            >
-                                                <div>
-                                                    <p className="text-white font-heading1">{item.name}</p>
-                                                    <p className="text-white/70">
-                                                        Size: {item.size}, Color: {item.color}, Qty: {item.quantity}
-                                                    </p>
-                                                </div>
-                                                <p className="text-white font-heading1">₹{item.price}</p>
-                                            </div>
-                                        ))}
-                                        <div className="border-t border-white/10 pt-4 mt-4">
-                                            <div className="flex justify-between">
-                                                <span className="text-white font-heading1">Total</span>
-                                                <span className="text-white font-heading1">₹{order.total}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                                {orders.length === 0 && (
-                                    <div className="text-center py-12 text-white/70">
-                                        No orders yet
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-
-                        {/* Address Modal */}
-                        {activeTab === "addresses" && (
-                            <div className="space-y-6">
-                                {/* Add New Address Button */}
-                                <Button
-                                    onClick={() => setIsAddressModalOpen(true)}
-                                    className="w-full bg-accent hover:bg-accent/90 rounded-full font-heading1"
-                                >
-                                    <PlusCircle className="mr-2" />
-                                    Add New Address
-                                </Button>
-
-                                {/* Addresses List Section */}
-                                {addresses.length === 0 && !loading ? (
-                                    <div className="bg-secondaryBackground rounded-xl p-8 text-center">
-                                        <div className="mb-4">
-                                            <MapPin className="w-12 h-12 text-accent mx-auto mb-2" />
-                                            <h3 className="text-xl font-heading1 text-white">No addresses yet</h3>
-                                            <p className="text-white/70 mt-2">
-                                                Add your first delivery address to get started
-                                            </p>
-                                        </div>
-                                        <Button
-                                            onClick={() => setIsAddressModalOpen(true)}
-                                            className="bg-accent hover:bg-accent/90 rounded-full"
-                                        >
-                                            Add Your First Address
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {loading ? (
-                                            // Loading skeletons
-                                            Array.from({ length: 2 }).map((_, i) => (
-                                                <div key={i} className="bg-secondaryBackground rounded-xl p-6 animate-pulse">
-                                                    <div className="flex justify-between items-start mb-4">
-                                                        <div className="h-4 bg-white/10 rounded w-1/4" />
-                                                        <div className="flex gap-2">
-                                                            <div className="h-8 w-16 bg-white/10 rounded" />
-                                                            <div className="h-8 w-16 bg-white/10 rounded" />
+                                    ) : (
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            {loading ? (
+                                                // Loading skeletons
+                                                Array.from({ length: 2 }).map((_, i) => (
+                                                    <div key={i} className="bg-secondaryBackground rounded-xl p-6 animate-pulse">
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div className="h-4 bg-white/10 rounded w-1/4" />
+                                                            <div className="flex gap-2">
+                                                                <div className="h-8 w-16 bg-white/10 rounded" />
+                                                                <div className="h-8 w-16 bg-white/10 rounded" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <div className="h-3 bg-white/10 rounded w-3/4" />
+                                                            <div className="h-3 bg-white/10 rounded w-1/2" />
+                                                            <div className="h-3 bg-white/10 rounded w-2/3" />
                                                         </div>
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <div className="h-3 bg-white/10 rounded w-3/4" />
-                                                        <div className="h-3 bg-white/10 rounded w-1/2" />
-                                                        <div className="h-3 bg-white/10 rounded w-2/3" />
+                                                ))
+                                            ) : (
+                                                // Actual address cards
+                                                addresses.map((address) => (
+                                                    <div
+                                                        key={address._id}
+                                                        className="bg-secondaryBackground rounded-xl p-6 transition-all duration-200 hover:shadow-lg border border-white/5"
+                                                    >
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <span className="px-3 py-1 bg-accent/20 text-accent rounded-full text-sm font-heading1">
+                                                                {address.address_type.toUpperCase()}
+                                                            </span>
+                                                            <div className="space-x-2">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="text-white/70 hover:text-white hover:bg-accent/20 transition-colors duration-200"
+                                                                    onClick={() => {
+                                                                        setAddressForm(address);
+                                                                        setIsAddressModalOpen(true);
+                                                                    }}
+                                                                >
+                                                                    <Edit size={16} className="mr-1" />
+                                                                    Edit
+                                                                </Button>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="text-white/70 hover:text-red-500 hover:bg-red-500/10 transition-colors duration-200"
+                                                                    onClick={() => address._id && handleDeleteAddress(address._id)}
+                                                                >
+                                                                    <Trash size={16} className="mr-1" />
+                                                                    Delete
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-white/70 space-y-1">
+                                                            <p className="font-medium text-white">{address.address_line1}</p>
+                                                            {address.address_line2 && (
+                                                                <p className="text-white/70">{address.address_line2}</p>
+                                                            )}
+                                                            <p>{address.city}, {address.state}</p>
+                                                            <p>{address.postal_code}</p>
+                                                            <p>{address.country}</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Address Form Modal */}
+                                    <Dialog open={isAddressModalOpen} onOpenChange={setIsAddressModalOpen}>
+                                        <DialogContent className="bg-secondaryBackground text-white">
+                                            <DialogHeader>
+                                                <DialogTitle className="font-heading1">
+                                                    {addressForm._id ? "Edit Address" : "Add New Address"}
+                                                </DialogTitle>
+                                            </DialogHeader>
+
+                                            <div className="grid gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm text-white/70">Address Type</label>
+                                                    <div className="flex gap-4">
+                                                        {["home", "work", "other"].map((type) => (
+                                                            <button
+                                                                key={type}
+                                                                onClick={() => setAddressForm({
+                                                                    ...addressForm,
+                                                                    address_type: type as IAddress["address_type"]
+                                                                })}
+                                                                className={`px-4 py-2 rounded-full text-sm font-heading1 
+                                                                    ${addressForm.address_type === type
+                                                                        ? "bg-accent text-white"
+                                                                        : "bg-white/10 text-white/70 hover:bg-white/20"}`}
+                                                            >
+                                                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 </div>
-                                            ))
-                                        ) : (
-                                            // Actual address cards
-                                            addresses.map((address) => (
-                                                <div
-                                                    key={address._id}
-                                                    className="bg-secondaryBackground rounded-xl p-6 transition-all duration-200 hover:shadow-lg"
+
+                                                <Input
+                                                    placeholder="Address Line 1"
+                                                    className="bg-background"
+                                                    value={addressForm.address_line1}
+                                                    onChange={(e) => setAddressForm({
+                                                        ...addressForm,
+                                                        address_line1: e.target.value
+                                                    })}
+                                                />
+
+                                                <Input
+                                                    placeholder="Address Line 2 (Optional)"
+                                                    className="bg-background"
+                                                    value={addressForm.address_line2}
+                                                    onChange={(e) => setAddressForm({
+                                                        ...addressForm,
+                                                        address_line2: e.target.value
+                                                    })}
+                                                />
+
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <Input
+                                                        placeholder="City"
+                                                        className="bg-background"
+                                                        value={addressForm.city}
+                                                        onChange={(e) => setAddressForm({
+                                                            ...addressForm,
+                                                            city: e.target.value
+                                                        })}
+                                                    />
+                                                    <Input
+                                                        placeholder="State"
+                                                        className="bg-background"
+                                                        value={addressForm.state}
+                                                        onChange={(e) => setAddressForm({
+                                                            ...addressForm,
+                                                            state: e.target.value
+                                                        })}
+                                                    />
+                                                </div>
+
+                                                <Input
+                                                    placeholder="PIN Code"
+                                                    className="bg-background"
+                                                    value={addressForm.postal_code}
+                                                    onChange={(e) => setAddressForm({
+                                                        ...addressForm,
+                                                        postal_code: e.target.value
+                                                    })}
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-4">
+                                                <Button
+                                                    onClick={addressForm._id ? handleUpdateAddress : handleAddAddress}
+                                                    className="flex-1 bg-accent hover:bg-accent/90 rounded-full font-heading1"
                                                 >
-                                                    <div className="flex justify-between items-start mb-4">
-                                                        <span className="px-3 py-1 bg-accent/20 text-accent rounded-full text-sm font-heading1">
-                                                            {address.address_type.toUpperCase()}
-                                                        </span>
-                                                        <div className="space-x-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="text-white/70 hover:text-white hover:bg-accent/20 transition-colors duration-200"
-                                                                onClick={() => {
-                                                                    setAddressForm(address);
-                                                                    setIsAddressModalOpen(true);
-                                                                }}
-                                                            >
-                                                                <Edit size={16} className="mr-1" />
-                                                                Edit
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="text-white/70 hover:text-red-500 hover:bg-red-500/10 transition-colors duration-200"
-                                                                onClick={() => address._id && handleDeleteAddress(address._id)}
-                                                            >
-                                                                <Trash size={16} className="mr-1" />
-                                                                Delete
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-white/70 space-y-1">
-                                                        <p className="font-medium text-white">{address.address_line1}</p>
-                                                        {address.address_line2 && (
-                                                            <p className="text-white/70">{address.address_line2}</p>
-                                                        )}
-                                                        <p>{address.city}, {address.state}</p>
-                                                        <p>{address.postal_code}</p>
-                                                        <p>{address.country}</p>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Address Form Modal */}
-                                <Dialog open={isAddressModalOpen} onOpenChange={setIsAddressModalOpen}>
-                                    <DialogContent className="bg-secondaryBackground text-white">
-                                        <DialogHeader>
-                                            <DialogTitle className="font-heading1">
-                                                {addressForm._id ? "Edit Address" : "Add New Address"}
-                                            </DialogTitle>
-                                        </DialogHeader>
-
-                                        <div className="grid gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-sm text-white/70">Address Type</label>
-                                                <div className="flex gap-4">
-                                                    {["home", "work", "other"].map((type) => (
-                                                        <button
-                                                            key={type}
-                                                            onClick={() => setAddressForm({
-                                                                ...addressForm,
-                                                                address_type: type as IAddress["address_type"]
-                                                            })}
-                                                            className={`px-4 py-2 rounded-full text-sm font-heading1 transition-all duration-200
-                    ${addressForm.address_type === type
-                                                                    ? "bg-accent text-white"
-                                                                    : "bg-white/10 text-white/70 hover:bg-white/20"
-                                                                }`}
-                                                        >
-                                                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                                    {addressForm._id ? "Update" : "Save"} Address
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setIsAddressModalOpen(false);
+                                                        setAddressForm({
+                                                            address_line1: "",
+                                                            address_line2: "",
+                                                            city: "",
+                                                            state: "",
+                                                            postal_code: "",
+                                                            country: "INDIA",
+                                                            address_type: "home"
+                                                        });
+                                                    }}
+                                                    className="flex-1 text-white hover:text-accent rounded-full font-heading1"
+                                                >
+                                                    Cancel
+                                                </Button>
                                             </div>
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
+                            )}
 
-                                            <Input
-                                                placeholder="Address Line 1"
-                                                className="bg-background"
-                                                value={addressForm.address_line1}
-                                                onChange={(e) => setAddressForm({
-                                                    ...addressForm,
-                                                    address_line1: e.target.value
-                                                })}
-                                            />
-
-                                            <Input
-                                                placeholder="Address Line 2 (Optional)"
-                                                className="bg-background"
-                                                value={addressForm.address_line2}
-                                                onChange={(e) => setAddressForm({
-                                                    ...addressForm,
-                                                    address_line2: e.target.value
-                                                })}
-                                            />
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <Input
-                                                    placeholder="City"
-                                                    className="bg-background"
-                                                    value={addressForm.city}
-                                                    onChange={(e) => setAddressForm({
-                                                        ...addressForm,
-                                                        city: e.target.value
-                                                    })}
-                                                />
-                                                <Input
-                                                    placeholder="State"
-                                                    className="bg-background"
-                                                    value={addressForm.state}
-                                                    onChange={(e) => setAddressForm({
-                                                        ...addressForm,
-                                                        state: e.target.value
-                                                    })}
-                                                />
-                                            </div>
-
-                                            <Input
-                                                placeholder="PIN Code"
-                                                className="bg-background"
-                                                value={addressForm.postal_code}
-                                                onChange={(e) => setAddressForm({
-                                                    ...addressForm,
-                                                    postal_code: e.target.value
-                                                })}
-                                            />
-                                        </div>
-
-                                        <div className="flex gap-4">
-                                            <Button
-                                                onClick={addressForm._id ? handleUpdateAddress : handleAddAddress}
-                                                className="flex-1 bg-accent hover:bg-accent/90 rounded-full font-heading1"
-                                            >
-                                                {addressForm._id ? "Update" : "Save"} Address
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => {
-                                                    setIsAddressModalOpen(false);
-                                                    setAddressForm({
-                                                        address_line1: "",
-                                                        address_line2: "",
-                                                        city: "",
-                                                        state: "",
-                                                        postal_code: "",
-                                                        country: "INDIA",
-                                                        address_type: "home"
-                                                    });
-                                                }}
-                                                className="flex-1 text-white hover:text-accent rounded-full font-heading1"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
-                        )}
-
-                        {/* Logout Button */}
-                        <Button
-                            variant="outline"
-                            className="w-full mt-8 text-white hover:text-accent rounded-full font-heading1"
-                            onClick={handleLogout}
-                        >
-                            <LogOut className="mr-2" />
-                            Logout
-                        </Button>
+                            {/* Logout Button */}
+                            <Button
+                                variant="outline"
+                                className="w-full mt-8 text-white hover:text-accent rounded-full font-heading1"
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="mr-2" />
+                                Logout
+                            </Button>
+                        </div>
                     </div>
                 </div>
-            </ProtectedRoute>
-        </>
+            </div>
+        </ProtectedRoute>
     );
 }

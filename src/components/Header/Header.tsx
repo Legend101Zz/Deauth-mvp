@@ -10,6 +10,7 @@ import { BsCart } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
 import { VscChromeClose } from "react-icons/vsc";
 import { usePathname, useRouter } from "next/navigation";
+import { useSelector } from 'react-redux';
 import Image from "next/image";
 import { DashboardIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
@@ -36,7 +37,7 @@ const Header = () => {
 	const [lastScrollY, setLastScrollY] = useState<number>(0);
 	const [categories, setCategories] = useState<Category[] | null>(null);
 	const [active, setActive] = useState<boolean>(true);
-
+	const cartItems = useSelector((state: any) => state.cart.items);
 	const pathName = usePathname();
 	const router = useRouter();
 
@@ -150,17 +151,22 @@ const Header = () => {
 								<DashboardIcon width={18} />
 							</p>
 						</Link>
-
+						{/* 
 						<div className="hidden md:flex w-8 md:w-12 h-8 md:h-12 rounded-full justify-center items-center hover:bg-white/10 cursor-pointer relative">
 							<IoMdHeartEmpty className="text-[19px] md:text-[24px] text-white" />
 							<div className="h-[14px] md:h-[18px] min-w-[14px] md:min-w-[18px] rounded-full bg-accent absolute top-1 left-5 md:left-7 text-white text-[10px] md:text-[12px] flex justify-center items-center px-[2px] md:px-[5px]">
 								0
 							</div>
-						</div>
+						</div> */}
 
 						<Link href="/cart" className="hidden md:block">
 							<div className="w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center items-center hover:bg-white/10 cursor-pointer relative">
 								<BsCart className="text-[15px] md:text-[20px] text-white" />
+								{cartItems.length > 0 && (
+									<div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-white text-xs flex items-center justify-center">
+										{cartItems.length}
+									</div>
+								)}
 							</div>
 						</Link>
 					</>

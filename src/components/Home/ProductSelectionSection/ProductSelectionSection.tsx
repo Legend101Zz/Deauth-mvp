@@ -12,7 +12,10 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Ruler, ShoppingCart, Heart, ArrowRight, Check } from "lucide-react";
+import { useDispatch } from 'react-redux';
 import { useToast } from "@/components/ui/use-toast";
+import { addToCart } from "@/app/store/features/cart/cartSlice";
+
 
 const ProductSelectionSection = () => {
     const [selectedColor, setSelectedColor] = useState("black");
@@ -20,6 +23,7 @@ const ProductSelectionSection = () => {
     const [quantity, setQuantity] = useState(1);
     const [showSizeChart, setShowSizeChart] = useState(false);
     const [gender, setGender] = useState<"male" | "female">("male");
+    const dispatch = useDispatch();
     const { toast } = useToast();
 
     const colors = [
@@ -29,6 +33,12 @@ const ProductSelectionSection = () => {
 
     const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
+    const product = {
+        id: "premium-hoodie-1",
+        name: "Premium Cotton Hoodie",
+        price: 1999,
+        image: "/hood.png"
+    };
     const sizeCharts = {
         male: [
             { size: "XS", chest: "34-36", length: "26" },
@@ -53,15 +63,24 @@ const ProductSelectionSection = () => {
             toast({
                 title: "Please select a size",
                 description: "Choose your size before adding to cart",
-                variant: "destructive",
+                variant: "destructive"
             });
             return;
         }
 
-        // Add to cart logic here
+        dispatch(addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            size: selectedSize,
+            color: selectedColor,
+            image: product.image
+        }));
+
         toast({
             title: "Added to cart",
-            description: "Item has been added to your cart",
+            description: "Item has been added to your cart"
         });
     };
 
