@@ -99,6 +99,10 @@ const ProductSelectionSection = () => {
                                 src="/hood.png"
                                 alt="Product"
                                 fill
+                                style={{
+                                    filter: "brightness(1.7) contrast(1) saturate(1.1)",
+                                    transition: "filter 0.3s ease-in-out",
+                                  }}
                                 className="object-cover hover:scale-105 transition-all duration-500"
                             />
                         </motion.div>
