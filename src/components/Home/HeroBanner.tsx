@@ -15,7 +15,8 @@ const HeroBanner = () => {
     { icon: Wind, title: "Perfect Fit" },
   ];
   return (
-    <section className="min-h-screen flex items-center mt-[5em] md:mt-0 bg-transparent">
+    <section className="min-h-screen flex items-center mt-[5em] md:mt-0 bg-transparent" itemScope
+      itemType="https://schema.org/Product">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -44,6 +45,7 @@ const HeroBanner = () => {
                     alt="Deauth Icon"
                     width={30}
                     height={30}
+                    priority // Add priority for LCP optimization
                   />
                 </motion.div>
                 <span className="font-heading1 text-accent">

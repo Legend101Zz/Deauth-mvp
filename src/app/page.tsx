@@ -13,6 +13,10 @@ import Features from "@/components/Home/Feautures/Features";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import ProductSelectionSection from "@/components/Home/ProductSelectionSection/ProductSelectionSection";
 import Loading from "./loading";
+import type { Metadata } from 'next';
+
+
+
 
 
 export default function Home() {
@@ -27,6 +31,18 @@ export default function Home() {
 		offset: ["start start", "end end"],
 	});
 
+	// Define metadata for the home page
+	const metadata: Metadata = {
+		title: 'Deauth | Premium Custom Apparel by Independent Artists',
+		description: 'Shop unique, water-resistant hoodies and premium apparel featuring designs by independent artists. Join Deauth\'s creative community today.',
+		keywords: ['custom apparel', 'designer hoodies', 'artist marketplace', 'premium clothing', 'water resistant hoodie'],
+		openGraph: {
+			title: 'Deauth - Where Art Meets Apparel',
+			description: 'Premium custom apparel featuring unique designs from independent artists',
+			images: [{ url: '/og-image.jpeg', width: 1200, height: 630 }],
+		}
+	};
+
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setIsLoading(false);
@@ -40,9 +56,16 @@ export default function Home() {
 	}
 
 	return (
-		<main ref={containerRef} className="relative min-h-screen">
+		<main ref={containerRef}
+			className="relative min-h-screen"
+			itemScope
+			itemType="https://schema.org/WebPage">
+
+			{/* SEO-friendly hidden heading */}
+			<h1 className="sr-only">Deauth - Premium Custom Apparel Marketplace for Independent Artists</h1>
+
 			{/* Hero Banner */}
-			<AnimatedBackground />
+			<AnimatedBackground aria-hidden="true" />
 			{/* <Beam/> */}
 			{/* <HeroHighlight/> */}
 
@@ -57,7 +80,8 @@ export default function Home() {
 
 
 				{/* Coming Soon Section */}
-				<section className="relative py-32 bg-secondaryBackground overflow-hidden">
+				<section className="relative py-32 bg-secondaryBackground overflow-hidden" itemScope
+					itemType="https://schema.org/Product">
 					<motion.div
 						initial={{ opacity: 0 }}
 						whileInView={{ opacity: 1 }}
