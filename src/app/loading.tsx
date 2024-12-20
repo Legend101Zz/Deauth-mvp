@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 const Loading = () => {
 	const [progress, setProgress] = useState(0);
 	const [isInitialized, setIsInitialized] = useState(false);
+	const [isBiting, setIsBiting] = useState(false);
 
 	useEffect(() => {
 		const initTimer = setTimeout(() => {
@@ -12,7 +13,14 @@ const Loading = () => {
 		}, 800);
 
 		const progressTimer = setInterval(() => {
-			setProgress(prev => prev >= 100 ? 100 : prev + 0.5);
+			setProgress(prev => {
+				// Make dino bite every 20% progress
+				if (Math.floor(prev / 20) !== Math.floor((prev + 0.5) / 20)) {
+					setIsBiting(true);
+					setTimeout(() => setIsBiting(false), 300);
+				}
+				return prev >= 100 ? 100 : prev + 0.5;
+			});
 		}, 30);
 
 		return () => {
@@ -20,6 +28,16 @@ const Loading = () => {
 			clearInterval(progressTimer);
 		};
 	}, []);
+
+	// Calculate dynamic dinosaur position
+	const getDinoPosition = () => {
+		// For mobile (< 768px), limit movement to 70% of screen width
+		if (typeof window !== 'undefined' && window.innerWidth < 768) {
+			return `${Math.min(70, progress)}%`;
+		}
+		// For desktop, allow full movement
+		return `${progress}%`;
+	};
 
 	return (
 		<div className="w-full h-screen bg-black flex items-center justify-center relative overflow-hidden">
@@ -39,37 +57,10 @@ const Loading = () => {
 				/>
 			</div>
 
-			{/* Luxury ambient effects */}
-			<div className="absolute inset-0">
-				{/* Floating silk ribbons */}
-				{Array.from({ length: 8 }).map((_, i) => (
-					<motion.div
-						key={i}
-						className="absolute w-64 h-1 bg-gradient-to-r from-transparent via-accent/20 to-transparent"
-						style={{
-							left: `${Math.random() * 100}%`,
-							top: `${Math.random() * 100}%`,
-							transform: `rotate(${Math.random() * 360}deg)`,
-						}}
-						animate={{
-							y: [0, 30, 0],
-							opacity: [0.1, 0.3, 0.1],
-							scale: [1, 1.2, 1],
-							rotate: [`${Math.random() * 360}deg`, `${Math.random() * 360 + 180}deg`],
-						}}
-						transition={{
-							duration: 8 + Math.random() * 4,
-							repeat: Infinity,
-							ease: "easeInOut",
-						}}
-					/>
-				))}
-			</div>
-
-			<div className="relative w-full max-w-4xl">
+			<div className="relative w-full max-w-4xl px-4">
 				{/* Main loader container */}
 				<div className="relative h-48 flex items-center">
-					{/* Luxury fabric runway */}
+					{/* Luxury fabric strip */}
 					<motion.div
 						className="absolute w-full h-16 overflow-hidden"
 						initial={{ opacity: 0 }}
@@ -135,25 +126,30 @@ const Loading = () => {
 						</motion.div>
 					</motion.div>
 
-					{/* Dinosaur with fashion treatment */}
-					<div
+					{/* Animated Dinosaur */}
+					<motion.div
 						className="absolute z-50"
 						style={{
-							left: `${progress}%`,
+							left: getDinoPosition(),
 							transform: 'translateX(-50%) scaleX(-1)',
-							zIndex: 50  // Ensure dinosaur is above everything
+						}}
+						animate={{
+							scale: isBiting ? [1, 1.1, 1] : 1,
+							rotate: isBiting ? [0, -5, 0] : 0
+						}}
+						transition={{
+							duration: 0.3,
+							ease: "easeInOut"
 						}}
 					>
-
 						<motion.svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 1280 890"
 							width="320"
 							height="180"
-							className="fill-white"
+							className="fill-white md:w-80 w-40"
 							animate={{
 								y: [-2, 2, -2],
-								rotate: [-1, 1, -1]
 							}}
 							transition={{
 								duration: 1.5,
@@ -163,6 +159,11 @@ const Loading = () => {
 						>
 							<g transform="translate(0.000000,890.000000) scale(0.100000,-0.100000)">
 								<motion.path
+									animate={{
+										scaleY: isBiting ? [1, 0.9, 1] : 1,
+										originY: "50%"
+									}}
+									transition={{ duration: 0.3 }}
 									d="M3323 5778 c-11 -13 -34 -44 -52 -69 -28 -39 -44 -51 -104 -74 -40
 -15 -122 -47 -183 -71 -61 -24 -121 -44 -133 -44 -32 0 -660 116 -846 156
 -224 49 -430 84 -490 84 -57 0 -57 0 -328 -247 -195 -178 -187 -166 -187 -278
@@ -199,31 +200,28 @@ l-31 15 -45 -53 c-25 -29 -58 -67 -72 -83 l-26 -30 -13 54 c-7 30 -14 118 -17
 -64 -3 -83 -15 -21 -16 -21 -25 -3 -16 30 -40 132 -52 226 -11 88 -11 89 17
 133 l28 44 11 -128 c6 -70 17 -155 24 -189z m381 137 l-6 -145 -12 75 c-27
 168 -27 169 -3 196 13 13 24 23 25 21 0 -1 -1 -67 -4 -147z"
-
 								/>
 							</g>
 						</motion.svg>
-					</div>
+					</motion.div>
 
-
-					{/* Luxury brand letters */}
+					{/* Brand Letters */}
 					<div className="absolute w-full text-center -top-8 z-40">
-						<div className="flex justify-center items-center gap-6">
+						<div className="flex justify-center items-center gap-2 md:gap-6">
 							{"DEAUTH".split("").map((letter, index) => (
 								<motion.div
 									key={index}
 									className="relative"
 									initial={{ opacity: 0, y: 20 }}
 									animate={{
-										opacity: progress > (index + 1) * 15 ? 1 : 0,
-										y: progress > (index + 1) * 15 ? 0 : 20,
+										opacity: progress > (index + 1) * 12 ? 1 : 0,
+										y: progress > (index + 1) * 12 ? 0 : 20,
 									}}
 									transition={{
-										duration: 0.8,
-										ease: [0.16, 1, 0.3, 1], // Custom bezier curve for luxury feel
+										duration: 0.4,
+										ease: [0.16, 1, 0.3, 1],
 									}}
 								>
-									{/* Luxury glow effects */}
 									<motion.div
 										className="absolute inset-0 blur-3xl -z-10"
 										style={{
@@ -240,7 +238,7 @@ l-31 15 -45 -53 c-25 -29 -58 -67 -72 -83 l-26 -30 -13 54 c-7 30 -14 118 -17
 											delay: index * 0.2,
 										}}
 									/>
-									<span className="text-7xl font-heading1 text-accent tracking-wider">
+									<span className="text-4xl md:text-7xl font-heading1 text-accent tracking-wider">
 										{letter}
 									</span>
 								</motion.div>
@@ -248,40 +246,29 @@ l-31 15 -45 -53 c-25 -29 -58 -67 -72 -83 l-26 -30 -13 54 c-7 30 -14 118 -17
 						</div>
 					</div>
 
-					{/* Luxury progress indicator */}
+					{/* Loading Text */}
 					<motion.div
 						className="absolute -bottom-16 left-1/2 transform -translate-x-1/2"
 						initial={{ opacity: 0 }}
-						animate={{
-							opacity: isInitialized ? 1 : 0,
-						}}
+						animate={{ opacity: isInitialized ? 1 : 0 }}
 					>
 						<motion.div
 							className="flex flex-col items-center gap-4"
-							animate={{
-								opacity: [0.7, 1, 0.7],
-							}}
+							animate={{ opacity: [0.7, 1, 0.7] }}
 							transition={{
 								duration: 2,
 								repeat: Infinity,
 								ease: "easeInOut",
 							}}
 						>
-							<div className="text-accent/70 font-heading1 text-sm tracking-[0.3em]">
+							<div className="text-accent/70 font-heading1 text-xs md:text-sm tracking-[0.3em]">
 								LOADING COLLECTION
 							</div>
-							<div className="w-48 h-[1px] bg-accent/20 overflow-hidden">
+							<div className="w-32 md:w-48 h-[1px] bg-accent/20 overflow-hidden">
 								<motion.div
 									className="h-full bg-gradient-to-r from-accent/40 via-accent/60 to-accent/40"
 									style={{ width: `${progress}%` }}
-								>
-									<motion.div
-										className="absolute top-0 right-0 h-full w-12"
-										style={{
-											background: 'linear-gradient(90deg, transparent, rgba(255,125,5,0.4))',
-										}}
-									/>
-								</motion.div>
+								/>
 							</div>
 						</motion.div>
 					</motion.div>
@@ -292,3 +279,5 @@ l-31 15 -45 -53 c-25 -29 -58 -67 -72 -83 l-26 -30 -13 54 c-7 30 -14 118 -17
 };
 
 export default Loading;
+
+

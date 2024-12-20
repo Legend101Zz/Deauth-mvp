@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
     Dialog,
     DialogContent,
@@ -11,24 +11,25 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Ruler, ShoppingCart, Heart, ArrowRight, Check } from "lucide-react";
+import { Ruler, ShoppingCart, Heart, Check } from "lucide-react";
 import { useDispatch } from 'react-redux';
 import { useToast } from "@/components/ui/use-toast";
 import { addToCart } from "@/app/store/features/cart/cartSlice";
-
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const ProductSelectionSection = () => {
     const [selectedColor, setSelectedColor] = useState("black");
     const [selectedSize, setSelectedSize] = useState("");
     const [quantity, setQuantity] = useState(1);
-    const [showSizeChart, setShowSizeChart] = useState(false);
     const [gender, setGender] = useState<"male" | "female">("male");
     const dispatch = useDispatch();
     const { toast } = useToast();
+    const router = useRouter();
+    const { data: session, status } = useSession();
 
     const colors = [
         { id: "black", name: "Midnight Black", hex: "#000000" },
-
     ];
 
     const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -39,6 +40,44 @@ const ProductSelectionSection = () => {
         price: 1999,
         image: "/hood.png"
     };
+
+    const handleAddToCart = async () => {
+        if (status === "unauthenticated") {
+            toast({
+                title: "Please sign in",
+                description: "You need to be signed in to add items to cart",
+                variant: "destructive"
+            });
+            router.push('/auth/login');
+            return;
+        }
+
+        if (!selectedSize) {
+            toast({
+                title: "Please select a size",
+                description: "Choose your size before adding to cart",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        dispatch(addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            size: selectedSize,
+            color: selectedColor,
+            image: product.image
+        }));
+
+        toast({
+            title: "Added to cart",
+            description: `${quantity} item(s) added to your cart`
+        });
+    };
+
+    // Size Chart Config
     const sizeCharts = {
         male: [
             { size: "XS", chest: "34-36", length: "26" },
@@ -58,32 +97,6 @@ const ProductSelectionSection = () => {
         ],
     };
 
-    const handleAddToCart = () => {
-        if (!selectedSize) {
-            toast({
-                title: "Please select a size",
-                description: "Choose your size before adding to cart",
-                variant: "destructive"
-            });
-            return;
-        }
-
-        dispatch(addToCart({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            quantity: 1,
-            size: selectedSize,
-            color: selectedColor,
-            image: product.image
-        }));
-
-        toast({
-            title: "Added to cart",
-            description: "Item has been added to your cart"
-        });
-    };
-
     return (
         <section className="relative py-24 bg-black/90">
             <div className="container mx-auto px-4">
@@ -99,25 +112,9 @@ const ProductSelectionSection = () => {
                                 src="/hood.png"
                                 alt="Product"
                                 fill
-                                style={{
-                                    filter: "brightness(1.7) contrast(1) saturate(1.1)",
-                                    transition: "filter 0.3s ease-in-out",
-                                  }}
                                 className="object-cover hover:scale-105 transition-all duration-500"
                             />
                         </motion.div>
-                        {/* <div className="grid grid-cols-3 gap-4">
-                            {["/hod1.png", "/hod2.png", "/hood.png"].map((img, idx) => (
-                                <div key={idx} className="relative aspect-square rounded-xl overflow-hidden">
-                                    <Image
-                                        src={img}
-                                        alt={`View ${idx + 1}`}
-                                        fill
-                                        className="object-cover hover:scale-105 transition-all duration-300"
-                                    />
-                                </div>
-                            ))}
-                        </div> */}
                     </div>
 
                     {/* Product Details */}
@@ -163,6 +160,7 @@ const ProductSelectionSection = () => {
                                             <DialogTitle>Size Guide</DialogTitle>
                                         </DialogHeader>
                                         <div className="space-y-4">
+                                            {/* Size chart content */}
                                             <div className="flex gap-4">
                                                 <Button
                                                     variant={gender === "male" ? "default" : "outline"}
@@ -207,8 +205,8 @@ const ProductSelectionSection = () => {
                                         key={size}
                                         onClick={() => setSelectedSize(size)}
                                         className={`py-3 rounded-xl font-heading1 transition-all duration-200 ${selectedSize === size
-                                            ? 'bg-accent text-white'
-                                            : 'bg-white/5 text-white hover:bg-white/10'
+                                                ? 'bg-accent text-white'
+                                                : 'bg-white/5 text-white hover:bg-white/10'
                                             }`}
                                     >
                                         {size}
