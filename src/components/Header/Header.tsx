@@ -10,7 +10,7 @@ import { BsCart } from "react-icons/bs";
 import { BiMenuAltRight } from "react-icons/bi";
 import { VscChromeClose } from "react-icons/vsc";
 import { usePathname, useRouter } from "next/navigation";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 import Image from "next/image";
 import { DashboardIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
@@ -98,28 +98,29 @@ const Header = () => {
 				title: "Success",
 				description: "Logged out successfully",
 			});
-			router.push('/');
+			router.push("/");
 			setIsOpen(false);
 		} catch (error) {
 			toast({
 				title: "Error",
 				description: "Failed to log out",
-				variant: "destructive"
+				variant: "destructive",
 			});
 		}
 	};
 
 	return (
 		<div
-			className={`${active ? "block" : "hidden"
-				} w-full h-[50px] md:h-[80px] flex justify-between z-20 fixed bg-black top-0 transition-all duration-500 px-5`}
+			className={`${
+				active ? "block" : "hidden"
+			} w-full h-[50px] md:h-[80px] flex justify-between z-20 fixed bg-black top-0 transition-all duration-500 px-5`}
 		>
 			{/* Logo */}
 			<div className="flex gap-2 items-center  ml-5 h-full">
 				<Link href="/">
 					<div className="flex h-full max-h-full gap-2 overflow-hidden items-center">
 						<Image
-							src="/logo.jpeg"
+							src="/logos/logo.webp"
 							height={100}
 							width={100}
 							alt="logo"
@@ -136,7 +137,7 @@ const Header = () => {
 						showCatMenu={showCatMenu}
 						setShowCatMenu={setShowCatMenu}
 						setMobileMenu={setMobileMenu}
-						categories={categories as Category[] || undefined}
+						categories={(categories as Category[]) || undefined}
 					/>
 				</div>
 			)}
